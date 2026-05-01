@@ -1,6 +1,8 @@
 import asyncio
 from infinitecraft import InfiniteCraft
 from collections import deque
+from infinitecraft.errors.clients import ClientResponseError
+#from conv import create_out
 
 
 
@@ -12,7 +14,7 @@ async def main():
 
         disc_items = set(game.discoveries)
         # only queue what isn't checked
-        queue = deque(item for item in game.discoveries if item.name not in checked)
+        queue = deque(item for item in reversed(game.discoveries) if item.name not in checked)
 
         attempted_pairs = set()
         while queue:
@@ -22,6 +24,7 @@ async def main():
             for b in list(disc_items):
                 # if already paired, skip
                 curr_pair = tuple(sorted((a.name, b.name)))
+
                 if curr_pair in attempted_pairs:
                     pass
                 #if not paired, pair it
@@ -30,12 +33,11 @@ async def main():
                     print(f"Pairing elements: {a} and {b}")
                     result = await game.pair(a, b)
                     print(f"Result: {result}")
-                    await asyncio.sleep(0.1)
-
+                    await asyncio.sleep(0.15)
                     # check for a result, and if new, add the discovery and into the queue
                     if result and result not in disc_items:
                         disc_items.add(result)
-                        queue.append(result)
+                        queue.appendleft(result)
 
 
 
