@@ -17,7 +17,6 @@ async def main():
                 checked = set()
 
         disc_items = set(game.discoveries)
-        disc_items_ordered = list(game.discoveries)
         # only queue what isn't checked
         queue = deque(item for item in game.discoveries if item.name not in checked)
 
@@ -32,7 +31,8 @@ async def main():
             # get the first item that needs to be used
             a = queue.popleft()
             # pair it with every other item
-            for b in disc_items_ordered:
+            snapshot = list(disc_items)
+            for b in snapshot:
                 # if already paired, skip
                 curr_pair = tuple(sorted((a.name, b.name)))
 
@@ -44,21 +44,21 @@ async def main():
                         attempted_pairs.add(curr_pair)
                         if fail < fail_limit:
                             print(f"Pairing elements: {a} and {b}")
-                            result = await game.pair(a, b)
-                            print(f"Result: {result}")
-                            await asyncio.sleep(0.15)
-                            # check for a result, and if new, add the discovery and into the queue
-
-
-                            if result and result not in disc_items:
-                                disc_items.add(result)
-                                queue.append(result)
-                                disc_items_ordered.append(result)
-                                count += 1
-                                print(f"New item. {len(game.discoveries)} items total. {count} new items for this item")
-                                fail = 0
+                            if b in banned:
+                                continue
                             else:
-                                fail += 1
+                                result = await game.pair(a, b)
+                                print(f"Result: {result}")
+                                await asyncio.sleep(0.15)
+                                # check for a result, and if new, add the discovery and into the queue
+                                if result and result not in disc_items:
+                                    disc_items.add(result)
+                                    queue.append(result)
+                                    count += 1
+                                    print(f"New item. {len(game.discoveries)} items total. {count} new items for this item")
+                                    fail = 0
+                                else:
+                                    fail += 1
                         else:
                             banned.add(a)
                             break
