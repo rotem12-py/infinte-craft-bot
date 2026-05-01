@@ -9,7 +9,7 @@ from infinitecraft.errors.clients import ClientResponseError
 async def main():
     async with InfiniteCraft() as game:  # automatically start session and end session on async with end
         # read the file to see what already checked
-        with open("checked") as f:
+        with open("checked.txt") as f:
             checked = set(f.read().splitlines())
 
         disc_items = set(game.discoveries)
@@ -29,20 +29,23 @@ async def main():
                     pass
                 #if not paired, pair it
                 else:
-                    attempted_pairs.add(curr_pair)
-                    print(f"Pairing elements: {a} and {b}")
-                    result = await game.pair(a, b)
-                    print(f"Result: {result}")
-                    await asyncio.sleep(0.15)
-                    # check for a result, and if new, add the discovery and into the queue
-                    if result and result not in disc_items:
-                        disc_items.add(result)
-                        queue.appendleft(result)
+                    try:
+                        attempted_pairs.add(curr_pair)
+                        print(f"Pairing elements: {a} and {b}")
+                        result = await game.pair(a, b)
+                        print(f"Result: {result}")
+                        await asyncio.sleep(0.15)
+                        # check for a result, and if new, add the discovery and into the queue
+                        if result and result not in disc_items:
+                            disc_items.add(result)
+                            queue.appendleft(result)
+                    except PermissionError:
+                        await asyncio.sleep(2)
 
 
 
 
-            with open("checked", "a") as f:
+            with open("checked.txt", "a") as f:
                 f.write(f"{a.name}\n")
 
 
