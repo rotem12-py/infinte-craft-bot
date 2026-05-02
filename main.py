@@ -2,7 +2,7 @@ import asyncio
 from infinitecraft import InfiniteCraft
 from collections import deque
 import math
-
+from random import shuffle
 
 
 async def main():
@@ -32,6 +32,7 @@ async def main():
             a = queue.popleft()
             # pair it with every other item
             snapshot = list(disc_items)
+            shuffle(snapshot)
             for b in snapshot:
                 # if already paired, skip
                 curr_pair = tuple(sorted((a.name, b.name)))
