@@ -44,21 +44,18 @@ async def main():
                         attempted_pairs.add(curr_pair)
                         if fail < fail_limit:
                             print(f"Pairing elements: {a} and {b}")
-                            if b in banned:
-                                continue
+                            result = await game.pair(a, b)
+                            print(f"Result: {result}")
+                            await asyncio.sleep(0.15)
+                            # check for a result, and if new, add the discovery and into the queue
+                            if result and result not in disc_items:
+                                disc_items.add(result)
+                                queue.append(result)
+                                count += 1
+                                print(f"New item. {len(game.discoveries)} items total. {count} new items for this item")
+                                fail = 0
                             else:
-                                result = await game.pair(a, b)
-                                print(f"Result: {result}")
-                                await asyncio.sleep(0.15)
-                                # check for a result, and if new, add the discovery and into the queue
-                                if result and result not in disc_items:
-                                    disc_items.add(result)
-                                    queue.append(result)
-                                    count += 1
-                                    print(f"New item. {len(game.discoveries)} items total. {count} new items for this item")
-                                    fail = 0
-                                else:
-                                    fail += 1
+                                fail += 1
                         else:
                             banned.add(a)
                             break
